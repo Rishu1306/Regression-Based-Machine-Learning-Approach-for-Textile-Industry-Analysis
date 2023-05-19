@@ -1,0 +1,188 @@
+import pandas as pd
+# Load the data into a Pandas dataframe
+df = pd.read_csv('Textile- STOCK_MARKET_DATA.csv')
+# Define column names
+df.iloc[1:]
+# Drop rows containing missing values
+df = df.dropna()
+df.iloc[1:14]
+df.head()  # Displays the first few rows of the DataFrame
+df.tail()  # Displays the last few rows of the DataFrame
+df.sort_values('Last Price')
+df.shape
+# df[1].value_counts()
+df.describe()
+Replace Missing Values With Median
+for col in df.columns[1:]:
+    # Check if the column contains string values
+    if df[col].dtype == 'object':
+        # Remove commas from the string values
+        df[col] = df[col].str.replace(',', '').astype(float)
+    
+    # Calculate the median of the column
+    fill_value = df[col].median()
+    
+    # Replace missing values with the median
+    df[col].fillna(fill_value, inplace=True)
+
+print("After replacing with median")
+df
+# Check for missing values
+print(df.isnull().sum())
+df.shape
+Replace Missing Values With mean
+for col in df.columns[1:]:
+    # Check if the column contains string values
+    if df[col].dtype == 'object':
+        # Remove commas from the string values
+        df[col] = df[col].str.replace(',', '').astype(float)
+    
+    # Calculate the mean of the column
+    fill_value = df[col].mean()
+    
+    # Replace missing values with the mean
+    df[col].fillna(fill_value, inplace=True)
+
+print("After replacing with mean")
+df
+Normailization
+from sklearn.preprocessing import MinMaxScaler
+
+# Create a MinMaxScaler object
+scaler = MinMaxScaler()
+
+# Scale the data
+df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])
+
+print("After feature scaling")
+df
+# Create a MinMaxScaler object
+scaler = MinMaxScaler()
+
+# Normalize the data
+df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])
+
+print("After normalization")
+df
+import matplotlib.pyplot as plt
+
+# Create a box plot of the dataframe
+plt.boxplot(df[df.columns[1:]], labels=df.columns[1:])
+
+# Add labels and title to the plot
+plt.xlabel("Variable")
+plt.ylabel("Value")
+plt.title("Box plot of variables")
+
+# Show the plot
+plt.show()
+Standardization
+from sklearn.preprocessing import StandardScaler
+
+# Create a StandardScaler object
+scaler = StandardScaler()
+
+# Standardize the data
+df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])
+
+print("After standardization")
+df
+# Create a box plot of the standardized dataframe
+plt.boxplot(df[df.columns[1:]], labels=df.columns[1:])
+
+# Add labels and title to the plot
+plt.xlabel("Variable")
+plt.ylabel("Value")
+plt.title("Box plot of standardized variables")
+
+# Show the plot
+plt.show()
+# splitting the data into X --> (independent variable) and Y --> (dependent variables)
+
+#dependent variable
+
+Y = df.iloc[:,0:1]
+Y
+X = df.iloc[:,1:10]
+X
+# one Hot Encoding for column M/F - (taking care of Categorical variables)
+
+new_X = pd.get_dummies(X, drop_first=True)
+new_X
+#Split the dataset into train and test
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, Y_train, Y_test = train_test_split(new_X, Y, test_size=0.3, random_state=2)  #30% of the data is set aside for testing
+#Feature Scaling
+
+from sklearn.preprocessing import StandardScaler
+std_scl = StandardScaler()
+
+X_train = std_scl.fit_transform(X_train)    
+X_test = std_scl.transform(X_test) 
+Logistic Regression
+from sklearn.linear_model import LogisticRegression
+LRC=LogisticRegression()
+LRC.fit(X_train,Y_train)
+Y_pred=LRC.predict(X_test)
+Y_pred
+df.shape
+from sklearn.metrics import confusion_matrix
+cm_lr=confusion_matrix(Y_test,Y_pred)
+print(cm_lr)
+Multivariate feature imputation
+import numpy as np
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+
+print('Before Imputation:')
+df
+
+# Imputation
+imp = IterativeImputer(max_iter=10, random_state=0)
+imp.fit(df.iloc[:, 1:])
+
+imputed_X_train = pd.DataFrame(imp.transform(df.iloc[:, 1:]))
+
+# Imputation removed column names; put them back
+imputed_X_train.columns = df.columns[1:]
+
+
+print('After Imputation:')
+print(imputed_X_train.iloc[:, 1:])
+KNN
+from sklearn.impute import KNNImputer
+
+print('Before Imputation:')
+print(df.iloc[:,1:])
+
+# Imputation
+imputer = KNNImputer(n_neighbors=2, weights="uniform")
+imputed_X_train=pd.DataFrame(imputer.fit_transform(df.iloc[:,1:]))
+
+# Imputation removed column names; put them back
+imputed_X_train.columns = df.columns[1:]
+
+print('After Imputation:')
+print(imputed_X_train.iloc[:,1:])
+import matplotlib.pyplot as plt
+
+plt.hist(df['52 wk High'], bins=10)
+plt.xlabel('52 wk High')
+plt.ylabel('Frequency')
+plt.title('Change in 52 wk High')
+plt.show()
+df['52 wk High'].value_counts(sort=False) 
+plt.hist(df['% Change'], bins=41)
+plt.xlabel('% Change')
+plt.ylabel('Frequency')
+plt.title('change in %Change')
+plt.show()
+df['% Change'].value_counts(sort=False) 
+plt.hist(df['Market Cap (Rs. cr)'], bins=40)
+plt.xlabel('Market Cap (Rs. cr)')
+plt.ylabel('Frequency')
+plt.title('change in %Change')
+plt.show()
+df['Market Cap (Rs. cr)'].value_counts(sort=False)
